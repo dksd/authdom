@@ -39,7 +39,13 @@ public class AuthService extends Service {
             @Override
             public void run() {
                 if (pushService.isConnected()) {
-                    pushService.startListening();
+                    pushService.startListening(new StompMessageListener() {
+                        @Override
+                        public void onMessage(StompMessage message) {
+                            ///TODO send back intents.
+                            System.out.println(message.getHeader("destination") + ": " + message.getContent());
+                        }
+                    });
                 }
             }
         };
