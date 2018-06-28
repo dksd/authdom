@@ -66,7 +66,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        //I need a service here now.
+        //Then I need to handle the message coming in.
+        //and create the notification intent to the user so they can accept decline.
+        //as well as the activity (later on afte it is working)..
         // Set up the login form.
+        pushService.startListening();
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
