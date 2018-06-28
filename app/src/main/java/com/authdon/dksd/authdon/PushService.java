@@ -9,14 +9,14 @@ public class PushService {
     }
 
     public void startListening() {
-        TopicHandler handler = client.subscribe("/topics/event");
+        TopicHandler handler = client.subscribe("/topic/greetings");
         handler.addListener(new StompMessageListener() {
             @Override
             public void onMessage(StompMessage message) {
                 System.out.println(message.getHeader("destination") + ": " + message.getContent());
             }
         });
-        client.connect("ws://localhost:8080/my-ws/websocket");
+        client.connect("ws://localhost:8080/gs-guide-websocket");
         //Thread.sleep(60000L);
         //client.disconnect();
     }

@@ -58,7 +58,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     // UI references.
     private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
+    private EditText mPhoneNumberView;
     private View mProgressView;
     private View mLoginFormView;
 
@@ -70,8 +70,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mPhoneNumberView = (EditText) findViewById(R.id.phone);
+        mPhoneNumberView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
@@ -150,19 +150,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         // Reset errors.
         mEmailView.setError(null);
-        mPasswordView.setError(null);
+        mPhoneNumberView.setError(null);
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String phone = mPhoneNumberView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
+        // Check for a valid phone, if the user entered one.
+        if (!TextUtils.isEmpty(phone) && !isphoneValid(phone)) {
+            mPhoneNumberView.setError(getString(R.string.error_invalid_phone));
+            focusView = mPhoneNumberView;
             cancel = true;
         }
 
@@ -185,7 +185,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(email, phone);
             mAuthTask.execute((Void) null);
         }
     }
@@ -195,9 +195,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         return email.contains("@");
     }
 
-    private boolean isPasswordValid(String password) {
+    private boolean isphoneValid(String phone) {
         //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return phone.length() > 4;
     }
 
     /**
@@ -297,11 +297,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String mEmail;
-        private final String mPassword;
+        private final String mphone;
 
-        UserLoginTask(String email, String password) {
+        UserLoginTask(String email, String phone) {
             mEmail = email;
-            mPassword = password;
+            mphone = phone;
         }
 
         @Override
@@ -311,6 +311,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             try {
                 // Simulate network access.
                 Thread.sleep(2000);
+                //Here we actually send a register message to the backend saving the creds..
             } catch (InterruptedException e) {
                 return false;
             }
@@ -318,8 +319,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");
                 if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
+                    // Account exists, return true if the phone matches.
+                    return pieces[1].equals(mphone);
                 }
             }
 
@@ -335,8 +336,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             if (success) {
                 finish();
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                mPhoneNumberView.setError(getString(R.string.error_incorrect_phone));
+                mPhoneNumberView.requestFocus();
             }
         }
 
