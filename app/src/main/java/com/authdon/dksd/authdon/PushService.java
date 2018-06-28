@@ -20,4 +20,11 @@ public class PushService {
         //Thread.sleep(60000L);
         //client.disconnect();
     }
+
+    public void send(String msg) {
+        if (client.isConnected()) {
+            startListening();
+        }
+        client.send(msg);
+    }
 }

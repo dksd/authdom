@@ -55,7 +55,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
-
+    private PushService pushService = new PushService();
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPhoneNumberView;
@@ -312,6 +312,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 // Simulate network access.
                 Thread.sleep(2000);
                 //Here we actually send a register message to the backend saving the creds..
+                pushService.send("{register user cerendtials here}");
             } catch (InterruptedException e) {
                 return false;
             }

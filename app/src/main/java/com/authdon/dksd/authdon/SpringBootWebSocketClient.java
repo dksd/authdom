@@ -146,16 +146,7 @@ public final class SpringBootWebSocketClient extends WebSocketListener {
         t.printStackTrace();
     }
 
-    public static void main(String... args) {
-        SpringBootWebSocketClient client = new SpringBootWebSocketClient();
-        TopicHandler handler = client.subscribe("/topics/event");
-        handler.addListener(new StompMessageListener() {
-            @Override
-            public void onMessage(StompMessage message) {
-                System.out.println(message.getHeader("destination") + ": " + message.getContent());
-            }
-        });
-        client.connect("ws://localhost:8080/my-ws/websocket");
-
+    public void send(String msg) {
+        webSocket.send(msg);
     }
 }
