@@ -1,4 +1,4 @@
-package com.cycling.science.trainwithscience;
+package com.authdon.dksd.authdon;
 
 import android.app.Service;
 import android.content.Intent;
@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * Created by dscottdawkins on 5/3/17.
  */
 
-public class SensorService extends Service {
+public class AuthService extends Service {
 
     private ALoggerFactory aLoggerFactory = new ALoggerFactoryImpl();
     private LocationFeature locationFeature;
