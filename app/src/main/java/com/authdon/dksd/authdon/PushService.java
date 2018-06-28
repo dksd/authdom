@@ -2,7 +2,7 @@ package com.authdon.dksd.authdon;
 
 public class PushService {
 
-    SpringBootWebSocketClient client = new SpringBootWebSocketClient();
+    private SpringBootWebSocketClient client = new SpringBootWebSocketClient();
 
     public PushService() {
         client.setId("sub-001");
@@ -26,5 +26,9 @@ public class PushService {
             startListening();
         }
         client.send(msg);
+    }
+
+    public boolean isConnected() {
+        return client.isConnected();
     }
 }

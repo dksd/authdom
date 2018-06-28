@@ -28,42 +28,22 @@ import java.util.concurrent.TimeUnit;
 
 public class AuthService extends Service {
 
-    private ALoggerFactory aLoggerFactory = new ALoggerFactoryImpl();
-    private LocationFeature locationFeature;
+    private PushService pushService = new PushService();
     private ScheduledExecutorService periodicallyTurnOnLocationData = Executors.newSingleThreadScheduledExecutor();
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         int ret = super.onStartCommand(intent, flags, startId);
 
-        final ALoggerFactory aLoggerFactory = new ALoggerFactoryImpl();
-
-        TimeProvider timeProvider = new TimeProviderImpl();
-        DataWriter csvDataWriter = new CsvDataWriter("CsvDataWriter", this, getFilesDir(), timeProvider, aLoggerFactory);
-
-        DistanceProvider distanceProvider = new DistanceProviderImpl();
-        SlopeCalculator simpleHistoryElevationSlopeCalculator = new SimpleHistoryElevationProvider(distanceProvider);
-        locationFeature = new LocationFeature("LocationFeature", this, csvDataWriter, simpleHistoryElevationSlopeCalculator, aLoggerFactory);
-        Collection<AppFeature> features = new ArrayList<>();
-        features.add(locationFeature);
-
-        Runnable checkForMovement = new Runnable() {
+        Runnable reconnectToServer = new Runnable() {
             @Override
             public void run() {
-                if (locationFeature.getMotionDetected()) {
-                    aLoggerFactory.getLogger("Sensor").info("CHKMov", "Motion underway, continuing");
-                    return;
+                if (pushService.isConnected()) {
+                    pushService.startListening();
                 }
-                if (locationFeature.getRequestedUpdates()) {
-                    locationFeature.deregisterFromUpdates();
-                    aLoggerFactory.getLogger("Sensor").info("CHKMov", "De-Registering for location updates");
-                    return;
-                }
-                locationFeature.registerForUpdates();
-                aLoggerFactory.getLogger("Sensor").info("CHKMov", "Registering for location updates");
             }
         };
-        periodicallyTurnOnLocationData.scheduleWithFixedDelay(checkForMovement, 1, 1, TimeUnit.MINUTES);
+        periodicallyTurnOnLocationData.scheduleWithFixedDelay(reconnectToServer, 1, 1, TimeUnit.MINUTES);
         return ret;
     }
 
