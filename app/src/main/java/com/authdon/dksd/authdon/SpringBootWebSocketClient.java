@@ -76,7 +76,7 @@ public final class SpringBootWebSocketClient extends WebSocketListener {
         client.newWebSocket(request, this);
 
         // Trigger shutdown of the dispatcher's executor so this process can exit cleanly.
-        client.dispatcher().executorService().shutdown();
+        //client.dispatcher().executorService().shutdown();
     }
 
     @Override public void onOpen(WebSocket webSocket, Response response) {
