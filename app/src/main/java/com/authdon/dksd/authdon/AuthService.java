@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.cycling.science.trainwithscience.elevation.DistanceProvider;
 import com.cycling.science.trainwithscience.elevation.DistanceProviderImpl;
@@ -24,6 +25,8 @@ import com.cycling.science.trainwithscience.writer.DataWriter;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -45,11 +48,27 @@ public class AuthService extends Service {
             @Override
             public void run() {
                 if (pushService.isConnected()) {
-                    pushService.startListening(new StompMessageListener() {
+                    pushService.connect(new StompMessageListener() {
                         @Override
-                        public void onMessage(StompMessage message) {
-                            ///TODO send back notification intents.
+                        public void onMessage(final StompMessage message) {
                             System.out.println(message.getHeader("destination") + ": " + message.getContent());
+                            Runnable runnable = new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        Intent bata = new Intent(getName());
+                                        bata.putExtra("ts", System.currentTimeMillis());
+                                        bata.putExtra("msg", message.getContent());
+                                        sendBroadcast(bata);
+                                    } catch (NoSuchElementException ep) {
+                                        //NOOP
+                                    } catch (Exception ep) {
+                                        Log.e(getName(), "Error handling message: ", ep);
+                                    } catch (Throwable t) {
+                                        Log.e(getName(), "Error throwable handling message: ", t);
+                                    }
+                                }
+                            };
                         }
                     });
                 }
@@ -103,4 +122,7 @@ public class AuthService extends Service {
         return null;
     }
 
+    public String getName() {
+        return "AuthSrvc";
+    }
 }

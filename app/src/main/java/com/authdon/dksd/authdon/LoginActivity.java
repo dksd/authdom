@@ -1,8 +1,12 @@
 package com.authdon.dksd.authdon;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -19,6 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -72,7 +77,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         //and create the notification intent to the user so they can accept decline.
         //as well as the activity (later on afte it is working)..
         // Set up the login form.
-        pushService.startListening();
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
@@ -98,6 +102,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        if (!isMyServiceRunning(AuthService.class)) {
+            Log.i("AuthDom", "Starting the sensor service!");
+            try {
+                startService(new Intent(getApplicationContext(), AuthService.class));
+            } catch (Throwable ep) {
+                Log.e("AuthDom", "Could not start service", ep);
+            }
+        }
     }
 
     private void populateAutoComplete() {
@@ -312,17 +325,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
             try {
                 // Simulate network access.
                 //Thread.sleep(2000);
                 //Here we actually send a register message to the backend saving the creds..
-                pushService.send("{register user cerendtials here}");
+                Intent bata = new Intent("RegisterAuthDom");
+                bata.putExtra("ts", System.currentTimeMillis());
+                bata.putExtra("msg", "{registration message I want the service to send}");
+                sendBroadcast(bata);
             } catch (Exception e) {
                 return false;
             }
-
             // TODO: register the new account here.
             return true;
         }
@@ -351,11 +364,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.getName().equals(service.service.getClassName())) {
-                Log.i(TAG, "Service is running");
+                Log.i("AuthDom", "Service is running");
                 return true;
             }
         }
-        Log.i(TAG, "Service is not running");
+        Log.i("AuthDom", "Service is not running");
         return false;
     }
 

@@ -8,17 +8,15 @@ public class PushService {
         client.setId("sub-001");
     }
 
-    public void startListening(StompMessageListener listener) {
+    public void connect(StompMessageListener listener) {
         TopicHandler handler = client.subscribe("/topic/greetings");
         handler.addListener(listener);
         client.connect("ws://localhost:8080/gs-guide-websocket");
-        //Thread.sleep(60000L);
-        //client.disconnect();
     }
 
-    public void send(String msg) {
+    public void send(String msg, StompMessageListener listener) {
         if (client.isConnected()) {
-            startListening();
+            connect(listener);
         }
         client.send(msg);
     }
