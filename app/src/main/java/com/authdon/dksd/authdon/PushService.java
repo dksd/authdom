@@ -11,8 +11,8 @@ public class PushService {
     public void connect(StompMessageListener listener) {
         TopicHandler handler = client.subscribe("/topic/greetings");
         handler.addListener(listener);
-        client.connect("wss://127.0.0.1/gs-guide-websocket");
-        
+        client.connect("wss://localhost/gs-guide-websocket");
+
 
 
     }

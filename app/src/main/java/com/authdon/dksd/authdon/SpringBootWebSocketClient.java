@@ -3,11 +3,16 @@ package com.authdon.dksd.authdon;
 import android.os.Build;
 import android.util.Log;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import okhttp3.CipherSuite;
+import okhttp3.ConnectionSpec;
+import okhttp3.TlsVersion;
 import okhttp3.WebSocket;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -66,9 +71,20 @@ public final class SpringBootWebSocketClient extends WebSocketListener {
     }
 
     public void connect(String address) {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .readTimeout(0,  TimeUnit.MILLISECONDS)
+        ConnectionSpec spec = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+                .tlsVersions(TlsVersion.TLS_1_2)
+                .cipherSuites(
+                        CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+                        CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                        CipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256)
                 .build();
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectionSpecs(Collections.singletonList(spec))
+                .build();
+        //OkHttpClient client = new OkHttpClient.Builder()
+         //       .readTimeout(0,  TimeUnit.MILLISECONDS)
+          //      .build();
 
         Request request = new Request.Builder()
                 .url(address)
