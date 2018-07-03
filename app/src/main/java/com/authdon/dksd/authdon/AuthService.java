@@ -37,11 +37,13 @@ public class AuthService extends Service {
         @Override
         public void run() {
             try {
-                Log.i("RunAD", "Checking if I should connect socket?, reconnect?: " + pushService.isConnected() + " , " + reconnect);
+                Log.i("RunAD", "Checking if I should connect socket?, reconnect?: " + pushService.isOpen() + " , " + reconnect);
                 Log.i("RunAD", "Checking with data : " + email + " , " + phone);
-                if (!pushService.isConnected() || reconnect /*&& email != null*/) {
+                if (!pushService.isOpen() || reconnect /*&& email != null*/) {
                     reconnect = false;
-                    pushService.connect(new StompMessageListener() {
+                    pushService.connect();
+
+                    /*new StompMessageListener() {
                         @Override
                         public void onMessage(final StompMessage message) {
                             System.out.println(message.getHeader("destination") + ": " + message.getContent());
@@ -63,14 +65,9 @@ public class AuthService extends Service {
                                 }
                             };
                         }
-                    });
-                    if (pushService.isConnected()) {
-                        pushService.send("Email:" + email + "," + "Phone: " + phone, new StompMessageListener() {
-                            @Override
-                            public void onMessage(StompMessage message) {
-                                Log.i("RgrRsp", "Received a registration response: " + message.getContent());
-                            }
-                        });
+                    });*/
+                    if (pushService.isOpen()) {
+                        pushService.send("Email:" + email + "," + "Phone: " + phone);
                     }
                 }
             } catch (Exception ep) {
