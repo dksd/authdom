@@ -7,13 +7,24 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -32,53 +43,51 @@ public class AuthService extends Service {
     private String email;
     private String phone;
     private volatile boolean reconnect = false;
+    private volatile boolean registered = false;
 
     private final Runnable runnableConnect = new Runnable() {
         @Override
         public void run() {
             try {
-                Log.i("RunAD", "Checking if I should connect socket?, reconnect?: " + pushService.isOpen() + " , " + reconnect);
-                Log.i("RunAD", "Checking with data : " + email + " , " + phone);
-                if (!pushService.isOpen() || reconnect /*&& email != null*/) {
+                Log.i("RunAD", "Checking if service is open: " + pushService.isOpen() + " , reconnect: " + reconnect);
+                if ((!pushService.isOpen() || reconnect) && email != null) {
                     reconnect = false;
+                    Log.i("RunAD", "Attempting to connect with: " + email + " phone: " + phone);
                     pushService.connect();
-
-                    /*new StompMessageListener() {
-                        @Override
-                        public void onMessage(final StompMessage message) {
-                            System.out.println(message.getHeader("destination") + ": " + message.getContent());
-                            Runnable runnable = new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        Intent bata = new Intent(getName());
-                                        bata.putExtra("ts", System.currentTimeMillis());
-                                        bata.putExtra("msg", message.getContent());
-                                        sendBroadcast(bata);
-                                    } catch (NoSuchElementException ep) {
-                                        //NOOP
-                                    } catch (Exception ep) {
-                                        Log.e(getName(), "Error handling message: ", ep);
-                                    } catch (Throwable t) {
-                                        Log.e(getName(), "Error throwable handling message: ", t);
-                                    }
-                                }
-                            };
-                        }
-                    });*/
-                    if (pushService.isOpen()) {
-                        pushService.send("Email:" + email + "," + "Phone: " + phone);
-                    }
+                }
+                if (!registered && pushService.isOpen()) {
+                    Log.i("RunAD", "Sending data : " + email + " phone: " + phone);
+                    pushService.send("Email:" + email + "," + "Phone: " + phone);
+                    registered = true;//TODO remove from here
                 }
             } catch (Exception ep) {
                 Log.e("Svc", "Failed to connect ", ep);
             }
+
         }
     };
+
+    //final SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         int ret = super.onStartCommand(intent, flags, startId);
+        //String email = sharedPreferences.getString("Email", "");
+        //final String phone = sharedPreferences.getString("Phone", "");
+        try {
+            FileInputStream fis = openFileInput("filename");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
+
+            System.out.println("Reading File line by line using BufferedReader");
+
+            email = reader.readLine();
+            phone = reader.readLine();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         IntentFilter intentFilter = new IntentFilter("RegisterUser");
         registerReceiver(registerUserReceiver, intentFilter);
         periodicallyTurnOnLocationData.scheduleWithFixedDelay(runnableConnect, 10, 10, TimeUnit.SECONDS);
@@ -143,6 +152,7 @@ public class AuthService extends Service {
         @Override
         public void onReceive(Context context, final Intent intent) {
             try {
+                Log.i("Asvc", "Got: " + intent.getAction());
                 if ("RegisterUser".equals(intent.getAction())) {
                     String eml = intent.getStringExtra("Email");
                     String phn = intent.getStringExtra("Phone");
@@ -159,6 +169,8 @@ public class AuthService extends Service {
             }
         }
     }
+
+
 
 }
 

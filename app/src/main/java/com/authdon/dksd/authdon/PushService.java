@@ -2,6 +2,9 @@ package com.authdon.dksd.authdon;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -9,22 +12,33 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class PushService {
+    private Gson gson = new GsonBuilder().create();
 
     private WebSocketClient client;
 
     public PushService() {
+
     }
 
     public void connect() throws URISyntaxException {
-        client = new WebSocketClient(new URI("wss://londonary.com:8100")) {
+        client = new WebSocketClient(new URI("wss://londonary.com:8001")) {
             @Override
             public void onOpen(ServerHandshake handshakedata) {
                 Log.i("WS", " open: " + handshakedata);
+                User user = new User();
+                user.setMsgType("RegisterUser");
+                user.setToken(user.getToken());
+                user.setEmail(user.getEmail());
+                client.send(gson.toJson(user));
             }
 
             @Override
             public void onMessage(String message) {
                 Log.i("WS", "msg: " + message);
+                User user = gson.fromJson(message, User.class);
+                if (user.getMsgType().equals("AuthenticateUser")) {
+                    //actual bit of work here
+                }
             }
 
             @Override

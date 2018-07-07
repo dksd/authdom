@@ -34,6 +34,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -89,7 +96,21 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPhoneNumberView = (EditText) findViewById(R.id.phone);
 
         String email = sharedPreferences.getString("Email", "");
-        final String phone = sharedPreferences.getString("Phone", "");
+        String phone = sharedPreferences.getString("Phone", "");
+        try {
+            FileInputStream fis = openFileInput("filename");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
+
+            System.out.println("Reading File line by line using BufferedReader");
+
+            email = reader.readLine();
+            phone = reader.readLine();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if (!phone.isEmpty()) {
             mPhoneNumberView.setText(phone);
         }
@@ -112,9 +133,24 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 String emaili = mEmailView.getText().toString();
                 String phonei = mPhoneNumberView.getText().toString();
-                editor.putString("Email", emaili);
-                editor.putString("Phone", phonei);
-                editor.commit();
+
+                String filename = "filename";
+                FileOutputStream outputStream;
+
+                try {
+                    outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+
+                    outputStream.write(emaili.getBytes());
+                    outputStream.write(System.lineSeparator().getBytes());
+                    outputStream.write(phonei.getBytes());
+                    outputStream.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                //editor.putString("Email", emaili);
+                //editor.putString("Phone", phonei);
+                //editor.commit();
                 Intent bata = new Intent("RegisterUser");
                 bata.putExtra("ts", System.currentTimeMillis());
                 bata.putExtra("Email", emaili);
