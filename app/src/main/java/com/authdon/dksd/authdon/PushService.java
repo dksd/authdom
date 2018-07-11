@@ -10,6 +10,7 @@ import org.java_websocket.handshake.ServerHandshake;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.UUID;
 
 public class PushService {
     private Gson gson = new GsonBuilder().create();
@@ -27,7 +28,7 @@ public class PushService {
                 Log.i("WS", " open: " + handshakedata);
                 User user = new User();
                 user.setMsgType("RegisterUser");
-                user.setToken(user.getToken());
+                //user.setToken(UUID.randomUUID().toString());
                 user.setEmail(user.getEmail());
                 client.send(gson.toJson(user));
             }
@@ -37,7 +38,15 @@ public class PushService {
                 Log.i("WS", "msg: " + message);
                 User user = gson.fromJson(message, User.class);
                 if (user.getMsgType().equals("AuthenticateUser")) {
-                    //actual bit of work here
+                    //Ask notification question here
+                    //If approved
+                    user.setMsgType("Approved");
+                    //or if denied
+                    user.setMsgType("Denied");
+                    //user.setToken(UUID.randomUUID().toString()); //WSe should receive two tokens,
+                    //one for approval and for denial.
+                    user.setEmail(user.getEmail());
+                    client.send(gson.toJson(user));
                 }
             }
 

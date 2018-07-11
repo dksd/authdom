@@ -67,8 +67,6 @@ public class AuthService extends Service {
         }
     };
 
-    //final SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         int ret = super.onStartCommand(intent, flags, startId);
@@ -94,7 +92,9 @@ public class AuthService extends Service {
         return ret;
     }
 
+    //Yip notification that takes you too the activity when clicked.
     //TODO now we get a message from the service and we send back the data intent here and process?
+    //TODO Take user back to the activity and let the activity handle the decision.
     private void sendNotification(String message, String title) {
         try {
             Intent intent = new Intent(this, AuthService.class);
